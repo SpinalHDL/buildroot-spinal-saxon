@@ -10,7 +10,14 @@
     model = "spinal,vexriscv_sim";
 
     chosen {
-        bootargs = "rootwait console=hvc0  earlycon=sbi root=/dev/mmcblk0p2 init=/sbin/init mmc_core.use_spi_crc=0 loglevel=7";  //ignore_loglevel rng_core.default_quality=1000 random.trust_cpu=on
+        //bootargs = "rootwait console=hvc0 earlycon=sbi root=/dev/mmcblk0p2 init=/sbin/init mmc_core.use_spi_crc=0 loglevel=7"; 
+
+        bootargs = "rootwait console=hvc0 earlycon=sbi root=/dev/ram0 init=/sbin/init mmc_core.use_spi_crc=0"; 
+
+        linux,initrd-start = <0x82000000>;
+        linux,initrd-end =   <0x83000000>; 
+
+
     };
 
     cpus {
