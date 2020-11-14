@@ -8,6 +8,6 @@
 #
 
 platform-objs-y += platform.o
-platform-genflags-y += "-I$(BR2_EXTERNAL_VEXRISCV_SAXON_PATH)/saxon_bsp/include"
-# platform-genflags-y += "-I$(BR2_EXTERNAL_VEXRISCV_SAXON_PATH)/saxon_bsp/driver"
+platform-genflags-y += "-I$(BR2_EXTERNAL_SPINAL_SAXON_PATH)/saxon_bsp/include"
+# platform-genflags-y += "-I$(BR2_EXTERNAL_SPINAL_SAXON_PATH)/saxon_bsp/driver"
 
