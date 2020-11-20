@@ -94,8 +94,8 @@
         #size-cells = <1>;
         ranges;
 
-        opensbi: sbi@81F80000 {
-            reg = <0x81F80000 0x80000>;
+        opensbi: sbi@80F80000 {
+            reg = <0x80F80000 0x80000>;
         };
         framebuffer: sbi@8F000000 {
             reg = <0x8F000000 0x1000000>;
