@@ -135,10 +135,11 @@
 
         gpioA: gpio@0 {
             compatible = "spinal-lib,gpio-1.0";
-            interrupt-parent = <&plic>;
-            ngpio = <32>;
-            interrupts = <0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 5 6 7>;
             reg = <0x000000 0x1000>;
+            ngpio = <32>;
+            interrupt-parent = <&plic>;
+            interrupts-pin = <24 25 26 27>;
+            interrupts     = < 4  5  6  7>;
             gpio-controller;
             #gpio-cells = <2>;
             interrupt-controller;
@@ -316,12 +317,12 @@
         led6 {
             label = "led6";
             gpios = <&gpioA 10 0>;
-            linux,default-trigger = "none";
+            linux,default-trigger = "mmc0";
         };
         led7 {
             label = "led7";
             gpios = <&gpioA 11 0>;
-            linux,default-trigger = "mmc0";
+            linux,default-trigger = "activity";
         };
     };
    
