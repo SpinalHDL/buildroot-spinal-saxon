@@ -1,1 +1,1 @@
-
+source "$BR2_EXTERNAL_SPINAL_SAXON_PATH/package/opensbi-ext/Config.in"
