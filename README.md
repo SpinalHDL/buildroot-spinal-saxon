@@ -30,7 +30,7 @@ Select the board support
 > Board defconfig can be found in the _configs_ directory of this package
 
 ```
-make -O=$PWD BR2_EXTERNAL=<SaxonSoc Package> -C <path to buildroot> <Board_defconfig>
+make O=$PWD BR2_EXTERNAL=<path this repo clone> -C <path to buildroot> <Board_defconfig>
 ```
 
 Customize to your needs
