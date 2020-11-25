@@ -42,7 +42,7 @@ make menuconfig
 Build
 
 ```
-make 
+make -j$(nproc)
 ```
 
 > Enjoy, the build results are in the build directory/images
