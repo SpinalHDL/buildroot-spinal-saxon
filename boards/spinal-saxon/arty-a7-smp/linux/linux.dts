@@ -48,8 +48,7 @@
                 compatible = "riscv,cpu-intc";
             };
         };
-
-        /*cpu@2 {
+        cpu@2 {
             device_type = "cpu";
             compatible = "riscv";
             riscv,isa = "rv32ima";
@@ -62,7 +61,6 @@
                 compatible = "riscv,cpu-intc";
             };
         };
-
         cpu@3 {
             device_type = "cpu";
             compatible = "riscv";
@@ -75,10 +73,8 @@
                 interrupt-controller;
                 compatible = "riscv,cpu-intc";
             };
-        };*/
+        };
     };
-
-
 
     memory@80000000 {
         device_type = "memory";
@@ -127,8 +123,8 @@
             interrupts-extended = <
                 &L0 11 &L0 9
                 &L1 11 &L1 9
-                /*&L2 11 &L2 9
-                &L3 11 &L3 9*/>;
+                &L2 11 &L2 9
+                &L3 11 &L3 9>;
             reg = <0x00C00000 0x400000>;
             riscv,ndev = <32>;
         };

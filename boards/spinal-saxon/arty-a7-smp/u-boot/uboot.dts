@@ -52,7 +52,7 @@
       };
     };
 
-   /* cpu2: cpu@2{
+   cpu2: cpu@2{
       device_type = "cpu";
       compatible = "riscv";
       riscv,isa = "rv32ima";
@@ -80,7 +80,7 @@
           interrupt-controller;
           compatible = "riscv,cpu-intc";
       };
-    };*/
+    };
   };
 
   memory {
