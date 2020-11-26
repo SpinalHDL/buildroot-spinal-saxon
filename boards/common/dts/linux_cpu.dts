@@ -1,0 +1,61 @@
+        cpu@0 {
+            device_type = "cpu";
+            compatible = "riscv";
+            riscv,isa = "rv32ima";
+            mmu-type = "riscv,sv32";
+            reg = <0>;
+            status = "okay";
+            L0: interrupt-controller {
+                #interrupt-cells = <0x00000001>;
+                interrupt-controller;
+                compatible = "riscv,cpu-intc";
+            };
+        };
+
+        #if SAXON_CPU_COUNT >= 2
+        cpu@1 {
+            device_type = "cpu";
+            compatible = "riscv";
+            riscv,isa = "rv32ima";
+            mmu-type = "riscv,sv32";
+            reg = <1>;
+            status = "okay";
+            L1: interrupt-controller {
+                #interrupt-cells = <0x00000001>;
+                interrupt-controller;
+                compatible = "riscv,cpu-intc";
+            };
+        };
+        #endif
+
+        #if SAXON_CPU_COUNT >= 3
+        cpu@2 {
+            device_type = "cpu";
+            compatible = "riscv";
+            riscv,isa = "rv32ima";
+            mmu-type = "riscv,sv32";
+            reg = <2>;
+            status = "okay";
+            L2: interrupt-controller {
+                #interrupt-cells = <0x00000001>;
+                interrupt-controller;
+                compatible = "riscv,cpu-intc";
+            };
+        };
+        #endif
+
+        #if SAXON_CPU_COUNT >= 4
+        cpu@3 {
+            device_type = "cpu";
+            compatible = "riscv";
+            riscv,isa = "rv32ima";
+            mmu-type = "riscv,sv32";
+            reg = <3>;
+            status = "okay";
+            L3: interrupt-controller {
+                #interrupt-cells = <0x00000001>;
+                interrupt-controller;
+                compatible = "riscv,cpu-intc";
+            };
+        };
+        #endif

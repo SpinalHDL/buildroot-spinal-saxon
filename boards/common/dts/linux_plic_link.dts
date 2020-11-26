@@ -1,0 +1,13 @@
+                &L0 11 &L0 9
+
+                #if SAXON_CPU_COUNT >= 2
+                &L1 11 &L1 9
+                #endif
+
+                #if SAXON_CPU_COUNT >= 3
+                &L2 11 &L2 9
+                #endif
+
+                #if SAXON_CPU_COUNT >= 4
+                &L3 11 &L3 9
+                #endif

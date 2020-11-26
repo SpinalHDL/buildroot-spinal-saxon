@@ -7,73 +7,21 @@
     #address-cells = <0x1>;
     #size-cells = <0x1>;
     compatible = "spinal,vexriscv";
-    model = "spinal,vexriscv_sim";
+    model = "spinal,vexriscv_saxon";
 
     chosen {
         bootargs = "rootwait console=hvc0 earlycon=sbi root=/dev/mmcblk0p2 init=/sbin/init mmc_core.use_spi_crc=0"; 
 
-        //bootargs = "rootwait console=hvc0 earlycon=sbi root=/dev/ram0 init=/sbin/init mmc_core.use_spi_crc=0"; 
-
-        //linux,initrd-start = <0x82000000>;
-        //linux,initrd-end =   <0x83000000>; 
+        //bootargs = "rootwait console=hvc0 earlycon=sbi root=/dev/ram0 init=/sbin/init mmc_core.use_spi_crc=0";
+        //linux,initrd-start = <0x81000000>;
+        //linux,initrd-end =   <0x82000000>;
     };
 
     cpus {
         #address-cells = <0x1>;
         #size-cells = <0x0>;
         timebase-frequency = <100000000>;
-        cpu@0 {
-            device_type = "cpu";
-            compatible = "riscv";
-            riscv,isa = "rv32ima";
-            mmu-type = "riscv,sv32";
-            reg = <0>;
-            status = "okay";
-            L0: interrupt-controller {
-                #interrupt-cells = <0x00000001>;
-                interrupt-controller;
-                compatible = "riscv,cpu-intc";
-            };
-        };
-        cpu@1 {
-            device_type = "cpu";
-            compatible = "riscv";
-            riscv,isa = "rv32ima";
-            mmu-type = "riscv,sv32";
-            reg = <1>;
-            status = "okay";
-            L1: interrupt-controller {
-                #interrupt-cells = <0x00000001>;
-                interrupt-controller;
-                compatible = "riscv,cpu-intc";
-            };
-        };
-        cpu@2 {
-            device_type = "cpu";
-            compatible = "riscv";
-            riscv,isa = "rv32ima";
-            mmu-type = "riscv,sv32";
-            reg = <2>;
-            status = "okay";
-            L2: interrupt-controller {
-                #interrupt-cells = <0x00000001>;
-                interrupt-controller;
-                compatible = "riscv,cpu-intc";
-            };
-        };
-        cpu@3 {
-            device_type = "cpu";
-            compatible = "riscv";
-            riscv,isa = "rv32ima";
-            mmu-type = "riscv,sv32";
-            reg = <3>;
-            status = "okay";
-            L3: interrupt-controller {
-                #interrupt-cells = <0x00000001>;
-                interrupt-controller;
-                compatible = "riscv,cpu-intc";
-            };
-        };
+        #include <boards/common/dts/linux_cpu.dts>
     };
 
     memory@80000000 {
@@ -121,10 +69,8 @@
             #interrupt-cells = <1>;
             interrupt-controller;
             interrupts-extended = <
-                &L0 11 &L0 9
-                &L1 11 &L1 9
-                &L2 11 &L2 9
-                &L3 11 &L3 9>;
+                #include <boards/common/dts/linux_plic_link.dts>
+            >;
             reg = <0x00C00000 0x400000>;
             riscv,ndev = <32>;
         };
