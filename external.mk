@@ -9,5 +9,5 @@ HOST_CFLAGS+=-I$(BR2_EXTERNAL_SPINAL_SAXON_PATH)
 
 MPG123_CPU=generic_nofpu
 
-
-
+#XLIB_LIBXSHMFENCE_CFLAGS+="-DSYS_futex=SYS_futex_time64"
+TARGET_CFLAGS+="-DSYS_futex=SYS_futex_time64"
