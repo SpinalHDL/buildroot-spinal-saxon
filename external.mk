@@ -11,3 +11,10 @@ MPG123_CPU=generic_nofpu
 
 #XLIB_LIBXSHMFENCE_CFLAGS+="-DSYS_futex=SYS_futex_time64"
 TARGET_CFLAGS+="-DSYS_futex=SYS_futex_time64"
+#TARGET_CFLAGS+="-D__NR_io_getevents=4"
+
+
+
+ifeq ($(BR2_PACKAGE_VEXRISCV_AES),y)
+LIBRESSL_CONF_OPTS+=-DVEXRISCV_AES=ON
+endif

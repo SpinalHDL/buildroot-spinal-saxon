@@ -1,1 +1,6 @@
 source "$BR2_EXTERNAL_SPINAL_SAXON_PATH/package/opensbi-ext/Config.in"
+
+config BR2_PACKAGE_VEXRISCV_AES
+	bool "VexRiscv AES custom instruction"
+	help
+	  Enable VexRiscv AES custom instruction usage in libressl
