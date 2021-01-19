@@ -90,7 +90,9 @@
 
   serial0: serial@10010000 {
     device_type = "serial";
-    compatible = "riscv_sbi,uart";
+    compatible = "vexriscv,uart0";
+    reg = <0x10010000 0x10>;
+    clock-frequency = <100000000>;
   };
 
   spi0: spi@10020000 {
