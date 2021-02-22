@@ -3,6 +3,8 @@
 #include <dt-bindings/input/input.h>
 #include <dt-bindings/interrupt-controller/irq.h>
 
+#define SAXON_CPU_ISA "rv32imafd"
+
 / {
     #address-cells = <0x1>;
     #size-cells = <0x1>;
@@ -10,11 +12,12 @@
     model = "spinal,vexriscv_saxon";
 
     chosen {
-        bootargs = "rootwait console=hvc0 earlycon=sbi root=/dev/mmcblk0p2 init=/sbin/init mmc_core.use_spi_crc=0"; 
+        bootargs = "rootwait console=hvc0 earlycon=sbi root=/dev/mmcblk0p2 init=/sbin/init mmc_core.use_spi_crc=0";
 
+        //bootargs = "rootwait console=hvc0 earlycon=sbi root=/dev/ram0 init=/boot mmc_core.use_spi_crc=0";
         //bootargs = "rootwait console=hvc0 earlycon=sbi root=/dev/ram0 init=/sbin/init mmc_core.use_spi_crc=0";
         //linux,initrd-start = <0x81000000>;
-        //linux,initrd-end =   <0x82000000>;
+        //linux,initrd-end =   <0x82400000>;
     };
 
     cpus {
