@@ -99,7 +99,8 @@
             compatible = "spinal-lib,gpio-1.0";
             interrupt-parent = <&plic>;
             ngpio = <32>;
-            interrupts = <0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4>;
+            interrupts-pin = <15>;
+            interrupts     = < 4>;
             reg = <0x000000 0x1000>;
             gpio-controller;
             #gpio-cells = <2>;
