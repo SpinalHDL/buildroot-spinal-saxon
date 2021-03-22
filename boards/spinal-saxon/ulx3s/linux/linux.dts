@@ -76,21 +76,8 @@
             #interrupt-cells = <1>;
             interrupt-controller;
             interrupts-extended = <
-                &L0 11 &L0 9
-
-                #if CPU_COUNT >= 2
-                &L1 11 &L1 9
-                #endif
-
-                #if CPU_COUNT >= 3
-                &L2 11 &L2 9
-                #endif
-
-                #if CPU_COUNT >= 4
-                &L3 11 &L3 9
-                #endif
+                #include <boards/common/dts/linux_plic_link.dts>
             >;
-
             reg = <0x00C00000 0x400000>;
             riscv,ndev = <32>;
         };
