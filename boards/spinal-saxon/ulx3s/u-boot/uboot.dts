@@ -110,4 +110,10 @@
       spi-max-frequency = <25000000>;
     };
   };
+
+  mac0: mac@10040000 {
+    compatible = "spinal,lib_mac";
+    reg = <0x10040000 0x1000>;
+    mac-address = [00 01 23 34 56 78];
+  };
 };
