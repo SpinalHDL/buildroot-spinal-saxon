@@ -9,6 +9,7 @@
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <sys/types.h>
+#include <sys/time.h>
 
 #define ABS(X) (((X) < 0) ? (-1 * (X)) : (X))
 #define MAX_ITER 100
@@ -119,6 +120,10 @@ double mag (complex_t c) {
     return sqrt ((c.re * c.re) + (c.im * c.im));
 }
 
+double mag2 (complex_t c) {
+    return  ((c.re * c.re) + (c.im * c.im));
+}
+
 /* Multiplies two complex numbers */
 complex_t mult (complex_t a, complex_t b) {
     complex_t ret = {
@@ -153,7 +158,7 @@ unsigned int mandelbrot (complex_t c) {
     };
     unsigned int ret = 0;
 
-    while (mag (z) <= 2 && ret < MAX_ITER) {
+    while (mag2(z) <= 4 && ret < MAX_ITER) {
         z = mult (z, z);
         z = add (z, c);
         ret++;
@@ -172,6 +177,7 @@ int main () {
     int fb_file; 
     unsigned int *fb;
     unsigned int *buf;
+    unsigned int *iterationsBuf;
     sigset_t mask;
     struct sigaction usr_action;
     double x_inc;
@@ -217,6 +223,10 @@ int main () {
         return -1;
     }
 
+    unsigned int width = info.xres_virtual, height = info.yres_virtual;
+
+    iterationsBuf = calloc (width * height, 4);
+
     /* Set up the SIGINT handler */
     sigfillset (&mask);
     usr_action.sa_handler = handler;
@@ -251,30 +261,59 @@ int main () {
     write (1, CSI, 2);
     write (1, "H", 1);
 
+    memset (fb, 0, finfo.smem_len);
+
     /* Test every point
      * Draw to a temporary buffer */
     printf("Start draw\n");
-    int i = 0;
-    for (pos.im = range_min + y_inc; pos.im < range_max; pos.im += y_inc) {
-        for (pos.re = domain_min + x_inc; pos.re < domain_max; pos.re += x_inc) {
+    struct timeval t1;
+    gettimeofday(&t1, NULL);
+
+
+    int iterations = 0;
+    unsigned int *iterationsBufPtr = iterationsBuf;
+
+    pos.im = range_min + y_inc;
+    for (unsigned int y = 0; y < height; y+=1) {
+        pos.re = domain_min + x_inc;
+        for (unsigned int x = 0; x < width; x+=1) {
             m = mandelbrot (pos);
-            paint ((unsigned short*)fb, c_position (pos),
-                   color (360 * m / MAX_ITER, 1, (m < MAX_ITER) ? 1 : 0));
-            i += 1;
-            if(i % 10000 == 0){
-                printf("%d\n", i);
-            }   
+            *iterationsBufPtr++ = m;
+            iterations += m;
+            pos.re += x_inc;
         }
+        pos.im += y_inc;
     }
-    /* Copy buffer to screen */
-    printf("Start copy\n");
-    memcpy (fb, buf, finfo.smem_len);
 
-    /* Wait for SIGINT */
-    while (!interrupted);
 
-    /* Clear the screen */
-    memset (fb, 0, finfo.smem_len);
+    struct timeval t2;
+    gettimeofday(&t2, NULL);
+
+    for(unsigned int i = 0;i < width*height;i++){
+        unsigned int m = iterationsBuf[i];
+        paint ((unsigned short*)fb, i, color (360 * m / MAX_ITER, 1, (m < MAX_ITER) ? 1 : 0));
+    }
+
+
+
+    double elapsedTime;
+    elapsedTime = (t2.tv_sec - t1.tv_sec) * 1000.0;      // sec to ms
+    elapsedTime += (t2.tv_usec - t1.tv_usec) / 1000.0;   // us to ms
+    printf("%d iterations.\n", iterations);
+    printf("%d ms.\n", (int)elapsedTime);
+    printf("%d ns/iterations.\n", (int)(elapsedTime/iterations*1e6));
+
+
+
+//    /* Copy buffer to screen */
+//    printf("Start copy\n");
+//    memcpy (fb, buf, finfo.smem_len);
+//
+//    /* Wait for SIGINT */
+//    while (!interrupted);
+//
+//    /* Clear the screen */
+//    memset (fb, 0, finfo.smem_len);
 
     /* Close the framebuffer */
     free (buf);
