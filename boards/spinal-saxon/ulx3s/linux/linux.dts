@@ -3,6 +3,10 @@
 #include <dt-bindings/input/input.h>
 #include <dt-bindings/interrupt-controller/irq.h>
 
+#if SAXON_FPU == 1
+#define SAXON_CPU_ISA "rv32imafd"
+#endif
+
 / {
     #address-cells = <0x1>;
     #size-cells = <0x1>;
@@ -27,7 +31,11 @@
 
     memory@80000000 {
         device_type = "memory";
+        #if SDRAM_SIZE == 64
+        reg = <0x80000000 0x04000000>;
+        #else
         reg = <0x80000000 0x02000000>;
+        #endif
     };
 
     reserved-memory {

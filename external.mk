@@ -4,7 +4,17 @@ ifndef SAXON_CPU_COUNT
 $(error SAXON_CPU_COUNT is not set)
 endif
 
+ifndef SAXON_FPU
+$(error SAXON_FPU is not set)
+endif
+
+ifndef SDRAM_SIZE
+$(error SDRAM_SIZE is not set)
+endif
+
 HOST_CFLAGS+=-DSAXON_CPU_COUNT=$(SAXON_CPU_COUNT)
+HOST_CFLAGS+=-DSAXON_FPU=$(SAXON_FPU)
+HOST_CFLAGS+=-DSDRAM_SIZE=$(SDRAM_SIZE)
 HOST_CFLAGS+=-I$(BR2_EXTERNAL_SPINAL_SAXON_PATH)
 
 MPG123_CPU=generic_nofpu
