@@ -19,6 +19,17 @@ typedef struct {
     double im;
 } complex_t;
 
+typedef struct {
+    complex_t c, z;
+    unsigned int iteration;
+    unsigned int index;
+} state_t;
+
+
+
+#define likely(x)      __builtin_expect(!!(x), 1)
+#define unlikely(x)    __builtin_expect(!!(x), 0)
+
 /* Global variables */
 volatile sig_atomic_t interrupted = 0;
 struct fb_var_screeninfo info;
@@ -72,7 +83,7 @@ unsigned short color (int h, float s, float v) {
         rp = x;
         gp = 0;
         bp = c;
-    } else if (200 <= h && h < 360) {
+    } else {
         rp = c;
         gp = 0;
         bp = x;
@@ -173,6 +184,162 @@ void paint (unsigned short *buf, unsigned int pos, unsigned int color) {
     if (pos != (unsigned int)-1) *(buf + pos) = color;
 }
 
+#define capture(idx)          \
+    states[idx].c = pos;       \
+    states[idx].iteration = 0; \
+    states[idx].z.im = 0;      \
+    states[idx].z.re = 0;      \
+    states[idx].index = index; \
+    index += 1;              \
+    x += 1;                  \
+    pos.re += inc_x;         \
+    if(x == width){          \
+        x = 0;               \
+        y += 1;              \
+        pos.re = start_x; \
+        pos.im += inc_y;     \
+    }
+
+
+//paint ((unsigned short*)fb, states[idx].index, color (360 * states[idx].iteration / MAX_ITER, 1, (states[idx].iteration < MAX_ITER) ? 1 : 0));
+
+#define processA(idx) \
+            zz_re[idx] = states[idx].z.re*states[idx].z.re;\
+            zz_im[idx] = states[idx].z.im*states[idx].z.im;\
+            zz_ri[idx] = states[idx].z.re*states[idx].z.im;
+
+#define processB(idx) \
+            zz[idx] = zz_re[idx] +  zz_im[idx];
+
+#define processC(idx) \
+            states[idx].z.re = zz_re[idx] - zz_im[idx]; \
+            states[idx].z.im = zz_ri[idx] + zz_ri[idx];
+
+#define processD(idx) \
+            states[idx].z.re += states[idx].c.re; \
+            states[idx].z.im += states[idx].c.im;
+
+#define processE(idx) \
+            not_done[idx] = (states[idx].iteration++ < MAX_ITER) & (zz[idx] <= four);
+
+#define processF(idx) \
+            if(unlikely(!not_done[idx])){ \
+                states[idx].iteration -= 1;\
+                buf[states[idx].index] = states[idx].iteration;\
+                iterations += states[idx].iteration; \
+                capture(idx); \
+                if(y == height-1){ \
+                    goto mandelbrot_done; \
+                } \
+            }
+
+
+#define doThat(idx, that) that;
+#define barrier
+#define UNUSED(x) (void)(x)
+
+#define UC 4
+#define foreachInline(that) \
+    that(0) \
+    that(1) \
+    that(2) \
+    that(3)
+
+int __attribute__ ((noinline)) mandelbrotLoopOpt(
+    double start_x, double start_y,
+    double inc_x, double inc_y,
+    unsigned int width, unsigned int height,
+    unsigned int *buf, unsigned short * fb){
+    unsigned int iterations = 0;
+    complex_t pos;
+    pos.re = start_x;
+    pos.im = start_y;
+    unsigned int x = 0, y = 0;
+    unsigned int index = 0;
+    UNUSED(fb);
+
+    state_t states[UC];
+
+    foreachInline(capture)
+
+    double four = 4.0;
+    while(1){
+        double zz_re[UC], zz_im[UC], zz_ri[UC];
+        double zz[UC];
+        unsigned int not_done[UC];
+
+        foreachInline(processA); barrier;
+        foreachInline(processB); barrier;
+        foreachInline(processC); barrier;
+        foreachInline(processD); barrier;
+        foreachInline(processE); barrier;
+        foreachInline(processF); barrier;
+    }
+    mandelbrot_done:
+    return iterations;
+}
+
+//    #define foreach(that)
+//    for(int idx = 0;idx < UC;idx++){
+//        that;
+//    }
+//    foreach(
+//        capture(idx)
+//    )
+//        foreach(
+//            zz_re[idx] = states[idx].z.re*states[idx].z.re;
+//            zz_im[idx] = states[idx].z.im*states[idx].z.im;
+//            zz_ri[idx] = states[idx].z.re*states[idx].z.im;
+//        )
+//
+//        foreach(zz[idx] = zz_re[idx] +  zz_im[idx])
+//        foreach(done[idx] = (states[idx].iteration >= MAX_ITER) | (zz[idx] > four)) //| instead of || is significant
+//        foreach(
+//            states[idx].z.re = zz_re[idx] - zz_im[idx];
+//            states[idx].z.im = zz_ri[idx] + zz_ri[idx];
+//        )
+//        foreach(
+//            states[idx].z.re += states[idx].c.re;
+//            states[idx].z.im += states[idx].c.im;
+//            states[idx].iteration += 1;
+//        )
+//
+//        foreach(
+//            if(unlikely(done[idx])){
+//                states[idx].iteration -= 1;
+//                buf[states[idx].index] = states[idx].iteration;
+//                //paint ((unsigned short*)fb, states[idx].index, color (360 * states[idx].iteration / MAX_ITER, 1, (states[idx].iteration < MAX_ITER) ? 1 : 0));
+//                iterations += states[idx].iteration;
+//                capture(idx);
+//                if(y == height-1){
+//                    goto mandelbrot_done;
+//                }
+//            }
+//        )
+
+
+int __attribute__ ((noinline)) mandelbrotLoopSimple(
+    double start_x, double start_y,
+    double inc_x, double inc_y,
+    unsigned int width, unsigned int height,
+    unsigned int *buf, unsigned short * fb){
+    unsigned int iterations = 0;
+    complex_t pos;
+    UNUSED(fb);
+    pos.im = start_y;
+    for (unsigned int y = 0; y < height; y+=1) {
+        pos.re = start_x;
+        for (unsigned int x = 0; x < width; x+=1) {
+            unsigned int m = mandelbrot (pos);
+            *buf++ = m;
+            iterations += m;
+            pos.re += inc_x;
+        }
+        pos.im += inc_y;
+    }
+    return iterations;
+}
+
 int main () {
     int fb_file; 
     unsigned int *fb;
@@ -182,8 +349,6 @@ int main () {
     struct sigaction usr_action;
     double x_inc;
     double y_inc;
-    complex_t pos;
-    unsigned int m;
 
     const char *CSI = "\x1B[";
 
@@ -266,27 +431,16 @@ int main () {
     /* Test every point
      * Draw to a temporary buffer */
     printf("Start draw\n");
-    struct timeval t1;
+    struct timeval t1, t2;
     gettimeofday(&t1, NULL);
 
 
-    int iterations = 0;
-    unsigned int *iterationsBufPtr = iterationsBuf;
-
-    pos.im = range_min + y_inc;
-    for (unsigned int y = 0; y < height; y+=1) {
-        pos.re = domain_min + x_inc;
-        for (unsigned int x = 0; x < width; x+=1) {
-            m = mandelbrot (pos);
-            *iterationsBufPtr++ = m;
-            iterations += m;
-            pos.re += x_inc;
-        }
-        pos.im += y_inc;
-    }
 
 
-    struct timeval t2;
+
+    int iterations = mandelbrotLoopOpt(domain_min, range_min, x_inc, y_inc, width, height, iterationsBuf, (unsigned short*)fb);
+//    int iterations = mandelbrotLoopSimple(domain_min, range_min, x_inc, y_inc, width, height, iterationsBuf, (unsigned short*)fb);
+
     gettimeofday(&t2, NULL);
 
     for(unsigned int i = 0;i < width*height;i++){
