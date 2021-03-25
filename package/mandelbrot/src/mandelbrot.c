@@ -456,6 +456,7 @@ int main () {
     printf("%d iterations.\n", iterations);
     printf("%d ms.\n", (int)elapsedTime);
     printf("%d ns/iterations.\n", (int)(elapsedTime/iterations*1e6));
+    printf("%d MFLOPS.\n", (int)(iterations*9/elapsedTime*1e-3));
 
 
 
