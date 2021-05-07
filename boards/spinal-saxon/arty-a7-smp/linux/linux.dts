@@ -23,7 +23,7 @@
     cpus {
         #address-cells = <0x1>;
         #size-cells = <0x0>;
-        timebase-frequency = <100000000>;
+        timebase-frequency = <96000000>;
         #include <boards/common/dts/linux_cpu.dts>
     };
 
@@ -56,7 +56,7 @@
             compatible = "fixed-clock";
             reg = <1 0>;
             #clock-cells = <0>;
-            clock-frequency = <100000000>;
+            clock-frequency = <96000000>;
         };
     };
 
@@ -128,7 +128,7 @@
                 #size-cells = <1>;
                 compatible = "spi-nor";
                 reg = <0>;
-                spi-max-frequency = <25000000>;
+                spi-max-frequency = <24000000>;
 
                 partition@0 {
                     label = "fpga_bitstream";
@@ -152,7 +152,7 @@
                 compatible = "mmc-spi-slot";
                 reg = <1>;
                 voltage-ranges = <3300 3300>;
-                spi-max-frequency = <25000000>;
+                spi-max-frequency = <24000000>;
             };
 
         };
@@ -188,12 +188,16 @@
             clocks = <&apbA_clock 0>;
         };
 
-
+        usb0: ohci@a0000 {
+          compatible = "generic-ohci";
+          reg = <0xa0000 0x1000>;
+          interrupt-parent = <&plic>;
+          interrupts = <16>;
+        };
     };
 
     leds: leds {
         compatible = "gpio-leds";
-
 
         led0_b {
             label = "led0_b";
@@ -278,7 +282,6 @@
             linux,default-trigger = "activity";
         };
     };
-   
 };
 
 

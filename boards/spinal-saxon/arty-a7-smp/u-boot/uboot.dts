@@ -20,13 +20,13 @@
   cpus {
     #address-cells = <1>;
     #size-cells = <0>;
-    timebase-frequency = <100000000>;
+    timebase-frequency = <96000000>;
 
     cpu0: cpu@0{
       device_type = "cpu";
       compatible = "riscv";
       riscv,isa = "rv32imafd";
-      clock-frequency = <100000000>;
+      clock-frequency = <96000000>;
       mmu-type = "riscv,sv32";
       reg = <0>;
       status = "okay";
@@ -41,7 +41,7 @@
       device_type = "cpu";
       compatible = "riscv";
       riscv,isa = "rv32imafd";
-      clock-frequency = <100000000>;
+      clock-frequency = <96000000>;
       mmu-type = "riscv,sv32";
       reg = <1>;
       status = "okay";
@@ -56,7 +56,7 @@
       device_type = "cpu";
       compatible = "riscv";
       riscv,isa = "rv32imafd";
-      clock-frequency = <100000000>;
+      clock-frequency = <96000000>;
       mmu-type = "riscv,sv32";
       reg = <2>;
       status = "okay";
@@ -71,7 +71,7 @@
       device_type = "cpu";
       compatible = "riscv";
       riscv,isa = "rv32imafd";
-      clock-frequency = <100000000>;
+      clock-frequency = <96000000>;
       mmu-type = "riscv,sv32";
       reg = <3>;
       status = "okay";
@@ -92,7 +92,7 @@
     device_type = "serial";
     compatible = "vexriscv,uart0";
     reg = <0x10010000 0x10>;
-    clock-frequency = <100000000>;
+    clock-frequency = <96000000>;
   };
 
   mac0: mac@10040000 {
@@ -109,11 +109,16 @@
     cmd_fifo_depth = <256>;
     rsp_fifo_depth = <256>;
     num-cs = <2>;
-    clock-frequency = <100000000>;
+    clock-frequency = <96000000>;
     mmc0: mmc@1 {
       compatible = "mmc-spi-slot";
       reg = <1>;
-      spi-max-frequency = <25000000>;
+      spi-max-frequency = <24000000>;
     };
+  };
+
+  usb0: ohci@100a0000 {
+    compatible = "generic-ohci";
+    reg = <0x100a0000 0x1000>;
   };
 };
