@@ -62,10 +62,10 @@
 
     framebuffer0: framebuffer@8f000000 {
         compatible = "simple-framebuffer";
-        reg = <0x8F000000 (640 * 480 * 2)>;
-        width = <640>;
-        height = <480>;
-        stride = <(640 * 2)>;
+        reg = <0x8F000000 (800 * 600 * 2)>;
+        width = <800>;
+        height = <600>;
+        stride = <(800 * 2)>;
         format = "r5g6b5";
     };
 
