@@ -1,0 +1,15 @@
+diff -ruN wmaker_ori/configure.ac wmaker2/configure.ac
+--- wmaker_ori/configure.ac	2020-04-04 12:02:28.000000000 +0200
++++ wmaker2/configure.ac	2021-05-15 00:27:10.092158209 +0200
+@@ -284,9 +284,9 @@
+ _libdir=`eval echo $libdir`
+ _libdir=`eval echo $_libdir`
+ 
+-lib_search_path='-L${libdir}'
++lib_search_path=''
+ 
+-inc_search_path='-I${includedir}'
++inc_search_path=''
+ 
+ dnl ===============================================
+ dnl Specify paths to look for libraries and headers
