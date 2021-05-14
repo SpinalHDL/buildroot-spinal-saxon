@@ -1,6 +1,7 @@
 source "$BR2_EXTERNAL_SPINAL_SAXON_PATH/package/opensbi-ext/Config.in"
 source "$BR2_EXTERNAL_SPINAL_SAXON_PATH/package/mandelbrot/Config.in"
 source "$BR2_EXTERNAL_SPINAL_SAXON_PATH/package/berkeley-float/Config.in"
+source "$BR2_EXTERNAL_SPINAL_SAXON_PATH/package/wmaker/Config.in"
 
 config BR2_PACKAGE_VEXRISCV_AES
 	bool "VexRiscv AES custom instruction"
