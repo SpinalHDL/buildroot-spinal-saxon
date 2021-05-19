@@ -55,7 +55,7 @@ CONFIG_SPI_FLASH_ISSI=y
 CONFIG_SPI_FLASH_SPANSION=y
 
 CONFIG_MTDIDS_DEFAULT="nor0=fpga-flash"
-CONFIG_MTDPARTS_DEFAULT="mtdparts=fpga-flash:4m(fpga_bitstream),10m(usr),1m(uboot-env),192k(opensbi),832k(uboot)"
+CONFIG_MTDPARTS_DEFAULT="mtdparts=fpga-flash:4m(fpga_bitstream),10m(usr),1m(uboot-env),256k(opensbi),768k(uboot)"
 CONFIG_ENV_SIZE=0x10000
 CONFIG_ENV_OFFSET=0xE00000
 

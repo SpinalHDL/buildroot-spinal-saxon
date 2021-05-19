@@ -144,11 +144,11 @@
                 };
                 partition@3 {
                     label = "opensbi";
-                    reg = <0xF00000 0x030000>;
+                    reg = <0xF00000 0x040000>;
                 };
                 partition@4 {
                     label = "uboot";
-                    reg = <0xF30000 0x0D0000>;
+                    reg = <0xF40000 0x0C0000>;
                 };
             };
 
