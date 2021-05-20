@@ -1,0 +1,14 @@
+config BR2_PACKAGE_OPENTTD
+	bool "openttd"
+	select BR2_PACKAGE_LIBZLIB
+	select BR2_PACKAGE_LIBPNG
+	select BR2_PACKAGE_SDL2
+	select BR2_PACKAGE_FREETYPE
+	select BR2_PACKAGE_FONTCONFIG
+	select BR2_PACKAGE_ICU
+	select BR2_PACKAGE_LZMA_TARGET
+	select BR2_PACKAGE_OPENTTDH
+	help
+	  OpenTTD package.
+
+
