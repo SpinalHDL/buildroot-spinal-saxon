@@ -1,0 +1,4 @@
+config BR2_PACKAGE_LZMA_TARGET
+	bool "lzma-target"
+	help
+	  lzma for the target
