@@ -10,6 +10,7 @@
 
   aliases {
     serial0 = &serial0;
+    spi0 = &spiA;
   };
 
   chosen {
@@ -20,13 +21,13 @@
   cpus {
     #address-cells = <1>;
     #size-cells = <0>;
-    timebase-frequency = <96000000>;
+    timebase-frequency = <100000000>;
 
     cpu0: cpu@0{
       device_type = "cpu";
       compatible = "riscv";
       riscv,isa = "rv32imafd";
-      clock-frequency = <96000000>;
+      clock-frequency = <100000000>;
       mmu-type = "riscv,sv32";
       reg = <0>;
       status = "okay";
@@ -41,7 +42,7 @@
       device_type = "cpu";
       compatible = "riscv";
       riscv,isa = "rv32imafd";
-      clock-frequency = <96000000>;
+      clock-frequency = <100000000>;
       mmu-type = "riscv,sv32";
       reg = <1>;
       status = "okay";
@@ -56,7 +57,7 @@
       device_type = "cpu";
       compatible = "riscv";
       riscv,isa = "rv32imafd";
-      clock-frequency = <96000000>;
+      clock-frequency = <100000000>;
       mmu-type = "riscv,sv32";
       reg = <2>;
       status = "okay";
@@ -71,7 +72,7 @@
       device_type = "cpu";
       compatible = "riscv";
       riscv,isa = "rv32imafd";
-      clock-frequency = <96000000>;
+      clock-frequency = <100000000>;
       mmu-type = "riscv,sv32";
       reg = <3>;
       status = "okay";
@@ -108,7 +109,7 @@
       device_type = "serial";
       compatible = "vexriscv,uart0";
       reg = <0x10000 0x10>;
-      clock-frequency = <96000000>;
+      clock-frequency = <100000000>;
     };
 
     mac0: mac@40000 {
@@ -124,21 +125,21 @@
       reg = <0x20000 0x1000>;
       cmd_fifo_depth = <256>;
       rsp_fifo_depth = <256>;
-      num-cs = <2>;
-      clock-frequency = <96000000>;
+      num-cs = <1>;
+      clock-frequency = <100000000>;
 
       flash: flash@0 {
         #address-cells = <1>;
         #size-cells = <1>;
         compatible = "jedec,spi-nor";
         reg = <0>;
-        spi-max-frequency = <24000000>;
+        spi-max-frequency = <25000000>;
       };
 
       mmc0: mmc@1 {
         compatible = "mmc-spi-slot";
         reg = <1>;
-        spi-max-frequency = <24000000>;
+        spi-max-frequency = <25000000>;
       };
     };
 
