@@ -1,0 +1,5 @@
+config BR2_PACKAGE_WMMAND
+	bool "wmmand"
+	help
+	  wmmand package.
+

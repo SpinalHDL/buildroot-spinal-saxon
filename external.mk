@@ -13,6 +13,9 @@ MPG123_CPU=generic_nofpu
 
 #XLIB_LIBXSHMFENCE_CFLAGS+="-DSYS_futex=SYS_futex_time64"
 TARGET_CFLAGS+="-DSYS_futex=SYS_futex_time64"
+TARGET_CFLAGS+="-D__NR_futex=__NR_futex_time64"
+
+
 #TARGET_CFLAGS+="-D__NR_io_getevents=4"
 
 

@@ -52,7 +52,7 @@
         #address-cells = <1>;
         #size-cells = <0>;
 
-        apbA_clock: clock@1 {
+        periph_clock: clock@1 {
             compatible = "fixed-clock";
             reg = <1 0>;
             #clock-cells = <0>;
@@ -62,14 +62,14 @@
 
     framebuffer0: framebuffer@8f000000 {
         compatible = "simple-framebuffer";
-        reg = <0x8F000000 (640 * 480 * 2)>;
-        width = <640>;
-        height = <480>;
-        stride = <(640 * 2)>;
+        reg = <0x8F000000 (1024 * 768 * 2)>;
+        width = <1024>;
+        height = <768>;
+        stride = <(1024 * 2)>;
         format = "r5g6b5";
     };
 
-    apbA@10000000 {
+    periph@10000000 {
         compatible = "simple-bus";
         #address-cells = <0x1>;
         #size-cells = <0x1>;
@@ -102,7 +102,7 @@
         uartA: ttySpinal@10000 {
                 compatible = "spinal-lib,uart-1.0";
                 reg = <0x10000 0x1000>;
-                clocks = <&apbA_clock 0>;
+                clocks = <&periph_clock 0>;
         };
 
         mac0: mac@40000 {
@@ -120,7 +120,7 @@
             reg = <0x020000 0x1000>;
             cmd_fifo_depth = <256>;
             rsp_fifo_depth = <256>;
-            clocks = <&apbA_clock 0>;
+            clocks = <&periph_clock 0>;
             cs-gpios = <0>, <0>, <&gpioA 28 0>, <&gpioA 29 0>;
                    
             flash: flash@0 {
@@ -135,16 +135,20 @@
                     reg = <0x000000 0x400000>;
                 };
                 partition@1 {
-                    label = "opensbi";
-                    reg = <0x400000 0x080000>;
+                    label = "user";
+                    reg = <0x400000 0xA00000>;
                 };
                 partition@2 {
-                    label = "uboot";
-                    reg = <0x480000 0x080000>;
+                    label = "uboot-env";
+                    reg = <0xE00000 0x010000>;
                 };
                 partition@3 {
-                    label = "user";
-                    reg = <0x500000 0xB00000>;
+                    label = "opensbi";
+                    reg = <0xF00000 0x040000>;
+                };
+                partition@4 {
+                    label = "uboot";
+                    reg = <0xF40000 0x0C0000>;
                 };
             };
 
@@ -185,15 +189,19 @@
             dmas = <&dmaA 0>, <&dmaA 1>;
             dma-names = "rx", "tx";
 
-            clocks = <&apbA_clock 0>;
+            clocks = <&periph_clock 0>;
         };
 
-
+        usb0: ohci@a0000 {
+          compatible = "generic-ohci";
+          reg = <0xa0000 0x1000>;
+          interrupt-parent = <&plic>;
+          interrupts = <16>;
+        };
     };
 
     leds: leds {
         compatible = "gpio-leds";
-
 
         led0_b {
             label = "led0_b";
@@ -278,7 +286,6 @@
             linux,default-trigger = "activity";
         };
     };
-   
 };
 
 

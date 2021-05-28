@@ -10,6 +10,7 @@
 
   aliases {
     serial0 = &serial0;
+    spi0 = &spiA;
   };
 
   chosen {
@@ -88,32 +89,68 @@
     reg = <0x80000000 0x10000000>;
   };
 
-  serial0: serial@10010000 {
-    device_type = "serial";
-    compatible = "vexriscv,uart0";
-    reg = <0x10010000 0x10>;
-    clock-frequency = <100000000>;
+  framebuffer0: framebuffer@8f000000 {
+      compatible = "simple-framebuffer";
+      reg = <0x8F000000 (800 * 600 * 2)>;
+      width = <800>;
+      height = <600>;
+      stride = <(800 * 2)>;
+      format = "r5g6b5";
   };
 
-  mac0: mac@10040000 {
-    compatible = "spinal,lib_mac";
-    reg = <0x10040000 0x1000>;
-    mac-address = [00 01 23 34 56 78];
-  };
 
-  spi0: spi@10020000 {
-    compatible = "vexriscv,spi";
-    #address-cells = <1>;
-    #size-cells = <0>;
-    reg = <0x10020000 0x1000>;
-    cmd_fifo_depth = <256>;
-    rsp_fifo_depth = <256>;
-    num-cs = <2>;
-    clock-frequency = <100000000>;
-    mmc0: mmc@1 {
-      compatible = "mmc-spi-slot";
-      reg = <1>;
-      spi-max-frequency = <25000000>;
+  periph@10000000 {
+    compatible = "simple-bus";
+    #address-cells = <0x1>;
+    #size-cells = <0x1>;
+    ranges = <0x0 0x10000000 0x01000000>;
+
+    serial0: serial@10000 {
+      device_type = "serial";
+      compatible = "vexriscv,uart0";
+      reg = <0x10000 0x10>;
+      clock-frequency = <100000000>;
+    };
+
+    mac0: mac@40000 {
+      compatible = "spinal,lib_mac";
+      reg = <0x40000 0x1000>;
+      mac-address = [00 01 23 34 56 78];
+    };
+
+    spiA: spi@20000 {
+      compatible = "vexriscv,spi";
+      #address-cells = <1>;
+      #size-cells = <0>;
+      reg = <0x20000 0x1000>;
+      cmd_fifo_depth = <256>;
+      rsp_fifo_depth = <256>;
+      num-cs = <1>;
+      clock-frequency = <100000000>;
+
+      flash: flash@0 {
+        #address-cells = <1>;
+        #size-cells = <1>;
+        compatible = "jedec,spi-nor";
+        reg = <0>;
+        spi-max-frequency = <25000000>;
+      };
+
+      mmc0: mmc@1 {
+        compatible = "mmc-spi-slot";
+        reg = <1>;
+        spi-max-frequency = <25000000>;
+      };
+    };
+
+    usb0: ohci@a0000 {
+      compatible = "generic-ohci";
+      reg = <0xa0000 0x1000>;
     };
   };
 };
+
+
+//sspi  0:0.0 32 9F
+//mtd read uboot-env 0x80000000
+//md.l 0x80000000 100

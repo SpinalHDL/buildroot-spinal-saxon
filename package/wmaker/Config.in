@@ -1,0 +1,8 @@
+config BR2_PACKAGE_WMAKER
+	bool "wmaker"
+	select BR2_PACKAGE_XLIB_LIBXFT
+	select BR2_PACKAGE_XLIB_LIBXMU
+	help
+	  WindowMaker package.
+
+	  http://example.com
