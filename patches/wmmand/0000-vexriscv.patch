@@ -1,0 +1,72 @@
+diff -ruN wmmand-1.3.2_ori/wmgeneral/wmgeneral.h wmmand-1.3.2/wmgeneral/wmgeneral.h
+--- wmmand-1.3.2_ori/wmgeneral/wmgeneral.h	2006-10-16 20:56:44.000000000 +0200
++++ wmmand-1.3.2/wmgeneral/wmgeneral.h	2021-05-21 03:01:42.358667834 +0200
+@@ -28,12 +28,12 @@
+  /* Global variable */
+ /*******************/
+ 
+-Display		*display;
+-Window          Root;
+-int		d_depth;
+-GC              NormalGC;
+-XpmIcon         wmgen;
+-Window		iconwin, win;
++extern Display		*display;
++extern Window          Root;
++extern int		d_depth;
++extern GC              NormalGC;
++extern XpmIcon         wmgen;
++extern Window		iconwin, win;
+ 
+ 
+   /***********************/
+diff -ruN wmmand-1.3.2_ori/wmMand/Makefile wmmand-1.3.2/wmMand/Makefile
+--- wmmand-1.3.2_ori/wmMand/Makefile	2006-04-12 21:30:39.000000000 +0200
++++ wmmand-1.3.2/wmMand/Makefile	2021-05-21 03:09:09.554667729 +0200
+@@ -1,8 +1,8 @@
+-CC     = gcc
++CC     = $(CC)
+ CFLAGS = -O2 -Wall
+-INCDIR = -I/usr/X11R6/include/X11
+-DESTDIR= /usr/local
+-LIBDIR = -L/usr/X11R6/lib
++INCDIR = -I$(INC)/usr/include/X11
++DESTDIR= $(TARGET_DIR)/usr
++LIBDIR = -L$(LIB)/usr/lib
+ # for linux
+ LIBS   = -lXpm -lX11 -lXext
+ # for Solaris
+@@ -28,9 +28,9 @@
+ 	rm -f wmMand
+ 
+ install:: wmMand
+-	install -d $(DESTDIR)
+-	install -d $(DESTDIR)/man/man6
+-	install -d $(DESTDIR)/share/pixmaps
+-	install -s -m 0755 wmMand $(DESTDIR)/bin
+-	install    -m 0644 wmMand.6.gz $(DESTDIR)/man/man6
+-	install	   -m 0644 wmMand.png $(DESTDIR)/share/pixmaps
++	$(INSTALL) -d $(DESTDIR)
++	$(INSTALL) -d $(DESTDIR)/man/man6
++	$(INSTALL) -d $(DESTDIR)/share/pixmaps
++	$(INSTALL)  -m 0755 wmMand $(DESTDIR)/bin/wmMand
++	$(INSTALL)    -m 0644 wmMand.6.gz $(DESTDIR)/man/man6
++	$(INSTALL)	   -m 0644 wmMand.png $(DESTDIR)/share/pixmaps
+diff -ruN wmmand-1.3.2_ori/wmMand/wmMand.c wmmand-1.3.2/wmMand/wmMand.c
+--- wmmand-1.3.2_ori/wmMand/wmMand.c	2007-03-17 08:35:23.000000000 +0100
++++ wmmand-1.3.2/wmMand/wmMand.c	2021-05-21 03:02:00.023330035 +0200
+@@ -71,6 +71,14 @@
+ #include "wmMand_master.xpm"
+ #include "wmMand_mask.xbm"
+ 
++
++Display		*display;
++Window          Root;
++int		d_depth;
++GC              NormalGC;
++XpmIcon         wmgen;
++Window		iconwin, win;
++
+ typedef struct {
+ 	Display *display;
+ 	int screen;

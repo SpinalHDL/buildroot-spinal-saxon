@@ -47,26 +47,30 @@
         };
     };
 
-    clocks {
-        compatible = "simple-bus";
-        #address-cells = <1>;
-        #size-cells = <0>;
 
-        periph_clock: clock@1 {
-            compatible = "fixed-clock";
-            reg = <1 0>;
-            #clock-cells = <0>;
-            clock-frequency = <100000000>;
-        };
-    };
+	periph_clock: clock@0 {
+		#clock-cells = <0>;
+		compatible = "fixed-clock";
+		clock-frequency = <100000000>;
+		//clock-output-names = "periph_clock";
+	};
 
-    framebuffer0: framebuffer@8f000000 {
-        compatible = "simple-framebuffer";
-        reg = <0x8F000000 (1024 * 768 * 2)>;
+    framebuffer0: framebuffer@8F000000 {
+        compatible = "spinal-framebuffer";
+        reg = <0x8F000000 (1024 * 768 * 2)>,
+              <0x10090000 0x1000>;
         width = <1024>;
         height = <768>;
         stride = <(1024 * 2)>;
         format = "r5g6b5";
+
+        mode = "1024x768@60m"; //""800x600M@60me";
+
+        clocks = <&pll2>;
+
+        dmas = <&dmaA 0>;
+        dma-names = "stream";
+
     };
 
     periph@10000000 {
@@ -74,6 +78,14 @@
         #address-cells = <0x1>;
         #size-cells = <0x1>;
         ranges = <0x0 0x10000000 0x01000000>;
+
+        pll2: clock@90000 {
+            compatible = "spinal,clk-mmcme2";
+            reg = <0x91000 0x1000>;
+            #clock-cells = <0>;
+            clocks = <&periph_clock>;
+        };
+
 
         plic: interrupt-controller@c00000 {
             compatible = "sifive,plic-1.0.0", "sifive,fu540-c000-plic";
@@ -102,7 +114,7 @@
         uartA: ttySpinal@10000 {
                 compatible = "spinal-lib,uart-1.0";
                 reg = <0x10000 0x1000>;
-                clocks = <&periph_clock 0>;
+                clocks = <&periph_clock>;
         };
 
         mac0: mac@40000 {
@@ -120,7 +132,7 @@
             reg = <0x020000 0x1000>;
             cmd_fifo_depth = <256>;
             rsp_fifo_depth = <256>;
-            clocks = <&periph_clock 0>;
+            clocks = <&periph_clock>;
             cs-gpios = <0>, <0>, <&gpioA 28 0>, <&gpioA 29 0>;
                    
             flash: flash@0 {
@@ -186,10 +198,10 @@
             compatible = "spinal,lib-audio-out";
             reg = <0x94000 0x1000>;
 
-            dmas = <&dmaA 0>, <&dmaA 1>;
-            dma-names = "rx", "tx";
+            dmas = <&dmaA 1>;
+            dma-names = "tx";
 
-            clocks = <&periph_clock 0>;
+            clocks = <&periph_clock>;
         };
 
         usb0: ohci@a0000 {

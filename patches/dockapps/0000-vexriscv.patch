@@ -1,0 +1,60 @@
+diff -ruN dockapps_ori/cputnik/src/docklib.h dockapps/cputnik/src/docklib.h
+--- dockapps_ori/cputnik/src/docklib.h	2021-06-07 13:25:09.336892248 +0200
++++ dockapps/cputnik/src/docklib.h	2021-05-21 02:00:45.331346691 +0200
+@@ -79,7 +79,7 @@
+ 
+ #define NUM_COLORS  10
+ 
+-enum {          /* don't change the order! */
++enum led_colors{          // don't change the order! 
+     GRAY = 0,
+     YELLOW,
+     GREEN,
+@@ -90,9 +90,9 @@
+     MAGENTA,
+     BROWN,
+     WHITE
+-} led_colors;
++} ;
+ 
+-enum {
++enum file_types{
+     F_NOT_AVAILABLE = 0,
+     F_REGULAR,
+     F_DIRECTORY,
+@@ -101,7 +101,7 @@
+     F_LINK,
+     F_FIFO,
+     F_SOCK
+-} file_types;
++} ;
+ 
+ /*-------------------------------------------------------------------------------*/
+ 
+diff -ruN dockapps_ori/cputnik/src/Makefile dockapps/cputnik/src/Makefile
+--- dockapps_ori/cputnik/src/Makefile	2021-06-07 13:25:09.336892248 +0200
++++ dockapps/cputnik/src/Makefile	2021-05-21 01:57:41.204427649 +0200
+@@ -1,15 +1,18 @@
+ 
+-CFLAGS			= -Wall -Os
+-INCS			= -I/usr/X11R6/include/X11
+-LIBS			= -L/usr/X11R6/lib -lXpm -lXext -lX11
++#CFLAGS			= -Wall -Os
++#INCS			= -I/usr/X11R6/include/X11
++#LIBS			= -L/usr/X11R6/lib -lXpm -lXext -lX11
++CFLAGS			= -Os
++INCS			= -I$(STAGING_DIR)/usr/include/X11
++LIBS			= -lXpm -lXext -lX11
+ INSTALL_PREFIX	= /usr/local
+ 
+ 
+ all: cputnik.c docklib.o master.h mask.h
+-	gcc $(CFLAGS) $(INCS) docklib.o cputnik.c -o cputnik $(LIBS)
++	$(CC) $(CFLAGS) $(INCS) docklib.o cputnik.c -o cputnik $(LIBS)
+ 
+ docklib.o: docklib.c docklib.h
+-	gcc $(CFLAGS) $(INCS) -c docklib.c
++	$(CC) $(CFLAGS) $(INCS) -c docklib.c
+ 
+ install:
+ 	cp ./cputnik $(INSTALL_PREFIX)/bin
