@@ -1,6 +1,6 @@
-From e850ca91d02de0c617a9e693cb3d8b8c286efb46 Mon Sep 17 00:00:00 2001
+From f9ea099d8cddf0161897751b8873ee7797a711dc Mon Sep 17 00:00:00 2001
 From: Dolu1990 <charles.papon.90@gmail.com>
-Date: Tue, 8 Jun 2021 18:03:46 +0200
+Date: Tue, 8 Jun 2021 19:21:33 +0200
 Subject: [PATCH] lib: fix GET_FXX_REG assembly
 
 The previous implementation was producing some broken assembly. See github #212 for more details
@@ -11,7 +11,7 @@ Signed-off-by: Charles Papon <charles.papon.90@gmail.com>
  1 file changed, 14 insertions(+)
 
 diff --git a/include/sbi/riscv_fp.h b/include/sbi/riscv_fp.h
-index a685884..71bd6b8 100644
+index a685884..e07d37b 100644
 --- a/include/sbi/riscv_fp.h
 +++ b/include/sbi/riscv_fp.h
 @@ -42,6 +42,8 @@
@@ -31,10 +31,10 @@ index a685884..71bd6b8 100644
 +#define GET_F64_REG(insn, pos, regs)                                                                    \
 +	({                                                                                              \
 +		ulong rf_address = SHIFT_RIGHT(insn, (pos)-3) & 0xf8;                                             \
-+		volatile u64 value;                                                                               \
++		u64 value;                                                                               \
 +		register ulong ptr asm("a0") = (ulong)&value;                                                      \
-+		asm ("1: auipc t1, %%pcrel_hi(get_f64_reg); add t1, t1, %1; jalr t0, t1, %%pcrel_lo(1b)"  \
-+			: : "r"(ptr), "r"(rf_address) : "t0", "t1", "memory");                                          \
++		asm ("1: auipc t1, %%pcrel_hi(get_f64_reg); add t1, t1, %2; jalr t0, t1, %%pcrel_lo(1b)"  \
++			: "=m"(value) : "r"(ptr), "r"(rf_address) : "t0", "t1");                                          \
 +		value;                                                                                         \
 +	})
 +#endif
