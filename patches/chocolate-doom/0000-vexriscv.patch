@@ -277,8 +277,8 @@ diff -ruN chocolate-doom-3.0.0_ori/src/i_timer.h chocolate-doom-3.0.0/src/i_time
  
 diff -ruN chocolate-doom-3.0.0_ori/src/i_video.c chocolate-doom-3.0.0/src/i_video.c
 --- chocolate-doom-3.0.0_ori/src/i_video.c	2017-12-30 22:20:28.000000000 +0100
-+++ chocolate-doom-3.0.0/src/i_video.c	2021-06-02 19:06:41.041486396 +0200
-@@ -47,6 +47,13 @@
++++ chocolate-doom-3.0.0/src/i_video.c	2021-06-08 17:05:03.504263471 +0200
+@@ -47,11 +47,27 @@
  #include "w_wad.h"
  #include "z_zone.h"
  
@@ -292,7 +292,21 @@ diff -ruN chocolate-doom-3.0.0_ori/src/i_video.c chocolate-doom-3.0.0/src/i_vide
  // These are (1) the window (or the full screen) that our game is rendered to
  // and (2) the renderer that scales the texture (see below) into this window.
  
-@@ -158,6 +165,12 @@
+ static SDL_Window *screen;
+ static SDL_Renderer *renderer;
++static SDL_DisplayMode display_mode;
++
++#ifndef max
++#define max(a,b)            (((a) > (b)) ? (a) : (b))
++#endif
++
++#ifndef min
++#define min(a,b)            (((a) < (b)) ? (a) : (b))
++#endif
+ 
+ // Window title
+ 
+@@ -158,6 +174,12 @@
  
  pixel_t *I_VideoBuffer = NULL;
  
@@ -305,7 +319,7 @@ diff -ruN chocolate-doom-3.0.0_ori/src/i_video.c chocolate-doom-3.0.0/src/i_vide
  // If true, game is running as a screensaver
  
  boolean screensaver_mode = false;
-@@ -199,6 +212,39 @@
+@@ -199,6 +221,39 @@
  // Joystick/gamepad hysteresis
  unsigned int joywait = 0;
  
@@ -345,7 +359,7 @@ diff -ruN chocolate-doom-3.0.0_ori/src/i_video.c chocolate-doom-3.0.0/src/i_vide
  static boolean MouseShouldBeGrabbed()
  {
      // never grab the mouse when in screensaver mode
-@@ -290,6 +336,7 @@
+@@ -290,6 +345,7 @@
  // ratio consistent with the aspect_ratio_correct variable.
  static void AdjustWindowSize(void)
  {
@@ -353,7 +367,7 @@ diff -ruN chocolate-doom-3.0.0_ori/src/i_video.c chocolate-doom-3.0.0/src/i_vide
      if (window_width * actualheight <= window_height * SCREENWIDTH)
      {
          // We round up window_height if the ratio is not exact; this leaves
-@@ -300,6 +347,7 @@
+@@ -300,6 +356,7 @@
      {
          window_width = window_height * SCREENWIDTH / actualheight;
      }
@@ -361,7 +375,7 @@ diff -ruN chocolate-doom-3.0.0_ori/src/i_video.c chocolate-doom-3.0.0/src/i_vide
  }
  
  static void HandleWindowEvent(SDL_WindowEvent *event)
-@@ -678,6 +726,198 @@
+@@ -678,6 +735,256 @@
                                  h_upscale*SCREENHEIGHT);
  }
  
@@ -404,6 +418,38 @@ diff -ruN chocolate-doom-3.0.0_ori/src/i_video.c chocolate-doom-3.0.0/src/i_vide
 +        in +=8;
 +        out16 += 16;
 +        out16b += 16;
++    }
++}
++
++
++void cmap_to_fb_x1_565(uint8_t * restrict out, uint8_t * restrict in, int in_pixels)
++{
++    int i;
++    uint16_t * restrict out16 = (uint16_t * restrict)out;
++
++    for (i = 0; i < in_pixels/8; i++)
++    {
++        uint16_t c[8];
++        c[0] = rgb565_palette[in[0]]; 
++        c[1] = rgb565_palette[in[1]]; 
++        c[2] = rgb565_palette[in[2]]; 
++        c[3] = rgb565_palette[in[3]]; 
++        c[4] = rgb565_palette[in[4]]; 
++        c[5] = rgb565_palette[in[5]]; 
++        c[6] = rgb565_palette[in[6]]; 
++        c[7] = rgb565_palette[in[7]]; 
++
++        out16[ 0] = c[0]; 
++        out16[ 1] = c[1]; 
++        out16[ 2] = c[2];
++        out16[ 3] = c[3]; 
++        out16[ 4] = c[4];
++        out16[ 5] = c[5];
++        out16[ 6] = c[6];
++        out16[ 7] = c[7];
++
++        in +=8;
++        out16 += 8;
 +    }
 +}
 +
@@ -502,6 +548,12 @@ diff -ruN chocolate-doom-3.0.0_ori/src/i_video.c chocolate-doom-3.0.0/src/i_vide
 +        int y = SCREENHEIGHT;
 +        int wx,wy;
 +        unsigned char *line_in, *line_out;
++        int draw_width = SCREENWIDTH;
++        int draw_height = SCREENHEIGHT;
++        int draw_x = 0;
++        int draw_y = 0;
++        int ratio = window_width/320;
++        int byte_per_pixel = vinfo.bits_per_pixel/8;
 +
 +        SDL_LockMutex(flush_lock);
 +        while (!flush_busy) {
@@ -511,38 +563,58 @@ diff -ruN chocolate-doom-3.0.0_ori/src/i_video.c chocolate-doom-3.0.0/src/i_vide
 +
 +        SDL_GetWindowPosition(screen, &wx, &wy);
 +        line_in  = (unsigned char *) I_VideoBuffer_flush;
-+        line_out = (unsigned char *) (fb0 + wx*vinfo.bits_per_pixel/8 + wy*finfo.line_length);
++        line_out = (unsigned char *) (fb0 + wx*byte_per_pixel + wy*finfo.line_length);
 +
-+        y = SCREENHEIGHT;
++        draw_x += max(0, -wx + ratio -1)/ratio;
++        draw_y += max(0, -wy + ratio -1)/ratio;
++        draw_width  -= draw_x + max(0, wx + SCREENWIDTH*ratio - display_mode.w)/ratio;
++        draw_height -= draw_y + max(0, wy + SCREENHEIGHT*ratio - display_mode.h)/ratio;
 +
-+        switch(vinfo.bits_per_pixel){
-+        case 32:
-+	        if(window_width == 1280){ 
-+                while (y--)
-+                {
-+	                cmap_to_fb_x4_888((void*)line_out, (void*)line_in, SCREENWIDTH);
-+	                line_out += finfo.line_length*4;
-+	                line_in += SCREENWIDTH;
-+                } 
-+            } else {
-+                while (y--)
-+                {
-+	                cmap_to_fb_x2_888((void*)line_out, (void*)line_in, SCREENWIDTH);
-+	                line_out += finfo.line_length*2;
-+	                line_in += SCREENWIDTH;
-+                } 
++        line_in  += draw_x + draw_y*SCREENWIDTH;
++        line_out += draw_x*byte_per_pixel + draw_y*finfo.line_length;
++
++        y = draw_height;
++
++
++        if(draw_width > 0 && draw_height > 0) {
++            switch(vinfo.bits_per_pixel){
++            case 32:
++	            if(window_width >= 1280){ 
++                    while (y--)
++                    {
++	                    cmap_to_fb_x4_888((void*)line_out, (void*)line_in, draw_width);
++	                    line_out += finfo.line_length*4;
++	                    line_in += SCREENWIDTH;
++                    } 
++                } else {
++                    while (y--)
++                    {
++	                    cmap_to_fb_x2_888((void*)line_out, (void*)line_in, draw_width);
++	                    line_out += finfo.line_length*2;
++	                    line_in += SCREENWIDTH;
++                    } 
++                }
++                break;
++
++
++            case 16:
++	            if(window_width >= 640){ 
++                    while (y--)
++                    {
++	                    cmap_to_fb_x2_565((void*)line_out, (void*)line_in, draw_width);
++	                    line_out += finfo.line_length*2;
++	                    line_in += SCREENWIDTH;
++                    } 
++                } else {
++                    while (y--)
++                    {
++	                    cmap_to_fb_x1_565((void*)line_out, (void*)line_in, draw_width);
++	                    line_out += finfo.line_length;
++	                    line_in += SCREENWIDTH;
++                    } 
++                }
++                break;
 +            }
-+            break;
-+
-+
-+        case 16:
-+            while (y--)
-+            {
-+	            cmap_to_fb_x2_565((void*)line_out, (void*)line_in, SCREENWIDTH);
-+	            line_out += finfo.line_length*2;
-+	            line_in += SCREENWIDTH;
-+            } 
-+            break;
 +        }
 +
 +        SDL_LockMutex(flush_lock);
@@ -560,7 +632,7 @@ diff -ruN chocolate-doom-3.0.0_ori/src/i_video.c chocolate-doom-3.0.0/src/i_vide
  //
  // I_FinishUpdate
  //
-@@ -720,6 +960,22 @@
+@@ -720,6 +1027,22 @@
          }
      }
  
@@ -583,7 +655,7 @@ diff -ruN chocolate-doom-3.0.0_ori/src/i_video.c chocolate-doom-3.0.0/src/i_vide
      UpdateGrab();
  
  #if 0 // SDL2-TODO
-@@ -814,12 +1070,19 @@
+@@ -814,12 +1137,19 @@
  
      for (i=0; i<256; ++i)
      {
@@ -603,7 +675,7 @@ diff -ruN chocolate-doom-3.0.0_ori/src/i_video.c chocolate-doom-3.0.0/src/i_vide
      }
  
      palette_to_set = true;
-@@ -900,7 +1163,7 @@
+@@ -900,7 +1230,7 @@
      // Pick 320x200 or 320x240, depending on aspect ratio correct
  
      window_width = factor * SCREENWIDTH;
@@ -612,7 +684,7 @@ diff -ruN chocolate-doom-3.0.0_ori/src/i_video.c chocolate-doom-3.0.0/src/i_vide
      fullscreen = false;
  }
  
-@@ -1046,6 +1309,12 @@
+@@ -1046,6 +1376,12 @@
      {
          SetScaleFactor(3);
      }
@@ -625,7 +697,35 @@ diff -ruN chocolate-doom-3.0.0_ori/src/i_video.c chocolate-doom-3.0.0/src/i_vide
  }
  
  // Check if we have been invoked as a screensaver by xscreensaver.
-@@ -1273,10 +1542,16 @@
+@@ -1146,7 +1482,6 @@
+     unsigned int rmask, gmask, bmask, amask;
+     int unused_bpp;
+     int window_flags = 0, renderer_flags = 0;
+-    SDL_DisplayMode mode;
+ 
+     w = window_width;
+     h = window_height;
+@@ -1205,16 +1540,16 @@
+     // intermediate texture into the upscaled texture.
+     renderer_flags = SDL_RENDERER_TARGETTEXTURE;
+ 	
+-    if (SDL_GetCurrentDisplayMode(video_display, &mode) != 0)
++    if (SDL_GetCurrentDisplayMode(video_display, &display_mode) != 0)
+     {
+         I_Error("Could not get display mode for video display #%d: %s",
+         video_display, SDL_GetError());
+     }
+ 
+     // Turn on vsync if we aren't in a -timedemo
+-    if (!singletics && mode.refresh_rate > 0)
++    if (!singletics && display_mode.refresh_rate > 0)
+     {
+-        renderer_flags |= SDL_RENDERER_PRESENTVSYNC;
++        //renderer_flags |= SDL_RENDERER_PRESENTVSYNC;
+     }
+ 
+     if (force_software_renderer)
+@@ -1273,10 +1608,16 @@
      {
          SDL_PixelFormatEnumToMasks(pixel_format, &unused_bpp,
                                     &rmask, &gmask, &bmask, &amask);
@@ -642,7 +742,7 @@ diff -ruN chocolate-doom-3.0.0_ori/src/i_video.c chocolate-doom-3.0.0/src/i_vide
      }
  
      if (texture != NULL)
-@@ -1415,6 +1690,12 @@
+@@ -1415,6 +1756,12 @@
      I_VideoBuffer = screenbuffer->pixels;
      V_RestoreBuffer();
  
@@ -655,7 +755,7 @@ diff -ruN chocolate-doom-3.0.0_ori/src/i_video.c chocolate-doom-3.0.0/src/i_vide
      // Clear the screen to black.
  
      memset(I_VideoBuffer, 0, SCREENWIDTH * SCREENHEIGHT);
-@@ -1428,6 +1709,8 @@
+@@ -1428,6 +1775,8 @@
      // Call I_ShutdownGraphics on quit
  
      I_AtExit(I_ShutdownGraphics, true);
