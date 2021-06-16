@@ -57,20 +57,14 @@
 
     framebuffer0: framebuffer@8F000000 {
         compatible = "spinal-framebuffer";
-        reg = <0x8F000000 (1024 * 768 * 2)>,
+        reg = <0x8F000000 (1920 * 1024 * 4)>,
               <0x10090000 0x1000>;
-        width = <1024>;
-        height = <768>;
-        stride = <(1024 * 2)>;
-        format = "r5g6b5";
-
-        mode = "1024x768@60m"; //""800x600M@60me";
-
         clocks = <&pll2>;
-
         dmas = <&dmaA 0>;
         dma-names = "stream";
 
+        format = "r5g6b5";
+        mode = "1024x768@60m";
     };
 
     periph@10000000 {
