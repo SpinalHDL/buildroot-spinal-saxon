@@ -116,4 +116,10 @@
     reg = <0x10040000 0x1000>;
     mac-address = [00 01 23 34 56 78];
   };
+
+
+  usb0: ohci@100a0000 {
+    compatible = "generic-ohci";
+    reg = <0x100a0000 0x1000>;
+  };
 };
