@@ -182,12 +182,16 @@
                     reg = <0x000000 0x400000>;
                 };
                 partition@1 {
-                    label = "opensbi";
-                    reg = <0x340000 0x040000>;
+                    label = "uboot-env";
+                    reg = <0x320000 0x020000>;
                 };
                 partition@2 {
+                    label = "opensbi";
+                    reg = <0x340000 0x020000>;
+                };
+                partition@3 {
                     label = "uboot";
-                    reg = <0x380000 0x080000>;
+                    reg = <0x360000 0x080000>;
                 };
             };
 
