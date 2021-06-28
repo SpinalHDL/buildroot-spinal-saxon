@@ -4,6 +4,7 @@ BR2_RISCV_ISA_CUSTOM_RVM=y
 # Include the following two lines if an FPU is included in the bitstream
 #BR2_RISCV_ISA_CUSTOM_RVF=y
 #BR2_RISCV_ISA_CUSTOM_RVD=y
+BR2_RISCV_ISA_CUSTOM_RVC=y
 BR2_RISCV_32=y
 BR2_CCACHE=y
 BR2_CCACHE_DIR="$(HOME)/.buildroot-ccache-saxon_default"

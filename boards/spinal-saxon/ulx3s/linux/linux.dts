@@ -4,7 +4,9 @@
 #include <dt-bindings/interrupt-controller/irq.h>
 
 #if SAXON_FPU == 1
-#define SAXON_CPU_ISA "rv32imafd"
+#define SAXON_CPU_ISA "rv32imafdc"
+#else
+#define SAXON_CPU_ISA "rv32imac"
 #endif
 
 / {
