@@ -115,6 +115,16 @@
         };
 #endif
 
+
+#if SAXON_USB_DEVICE == 1
+        usb1: udc@b0000 {
+          compatible = "spinal-udc";
+          reg = <0xb0000 0x10000>;
+          interrupt-parent = <&plic>;
+          interrupts = <17>;
+        };
+#endif
+
         dmaA: dma@80000 {
             compatible = "spinal,lib-dmasg";
             reg = <0x80000 0x10000>;
