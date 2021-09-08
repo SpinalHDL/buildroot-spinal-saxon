@@ -12,7 +12,7 @@
     model = "spinal,vexriscv_saxon";
 
     chosen {
-        bootargs = "rootwait console=hvc0 earlycon=sbi root=/dev/mmcblk0p2 init=/sbin/init mmc_core.use_spi_crc=0";
+        bootargs = "rootwait console=hvc0 earlycon=sbi root=/dev/mmcblk0p2 init=/sbin/init mmc_core.use_spi_crc=0 loglevel=8"; // loglevel=8
 
         //bootargs = "rootwait console=hvc0 earlycon=sbi root=/dev/ram0 init=/boot mmc_core.use_spi_crc=0";
         //bootargs = "rootwait console=hvc0 earlycon=sbi root=/dev/ram0 init=/sbin/init mmc_core.use_spi_crc=0";
@@ -203,6 +203,13 @@
           reg = <0xa0000 0x1000>;
           interrupt-parent = <&plic>;
           interrupts = <16>;
+        };
+
+        usb1: udc@b0000 {
+          compatible = "spinal-udc";
+          reg = <0xb0000 0x10000>;
+          interrupt-parent = <&plic>;
+          interrupts = <17>;
         };
     };
 
