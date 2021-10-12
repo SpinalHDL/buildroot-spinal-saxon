@@ -1,0 +1,4 @@
+config BR2_PACKAGE_GPIO_INTERRUPT
+	bool "gpio-interrupt"
+	help
+	  Can be used to test gpio interrupts

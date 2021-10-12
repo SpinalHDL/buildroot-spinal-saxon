@@ -8,6 +8,7 @@ source "$BR2_EXTERNAL_SPINAL_SAXON_PATH/package/wmmand/Config.in"
 source "$BR2_EXTERNAL_SPINAL_SAXON_PATH/package/alsaplayer/Config.in"
 source "$BR2_EXTERNAL_SPINAL_SAXON_PATH/package/xfe/Config.in"
 source "$BR2_EXTERNAL_SPINAL_SAXON_PATH/package/fbdoom/Config.in"
+source "$BR2_EXTERNAL_SPINAL_SAXON_PATH/package/gpio-interrupt/Config.in"
 
 config BR2_PACKAGE_VEXRISCV_AES
 	bool "VexRiscv AES custom instruction"
