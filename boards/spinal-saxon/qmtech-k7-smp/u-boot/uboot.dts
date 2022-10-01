@@ -1,0 +1,120 @@
+/dts-v1/;
+
+#include <config.h>
+
+/ {
+  #address-cells = <1>;
+  #size-cells = <1>;
+  compatible = "spinal,vexriscv";
+  model = "spinal,vexriscv_saxon";
+
+  aliases {
+    serial0 = &serial0;
+    spi0 = &spiA;
+  };
+
+  chosen {
+    bootargs = "console=ttyS0,115200n8";
+    stdout-path = "serial0:115200n8";
+  };
+
+  cpus {
+    #address-cells = <1>;
+    #size-cells = <0>;
+    timebase-frequency = <100000000>;
+
+    cpu0: cpu@0{
+      device_type = "cpu";
+      compatible = "riscv";
+      riscv,isa = "rv32imafd";
+      clock-frequency = <100000000>;
+      mmu-type = "riscv,sv32";
+      reg = <0>;
+      status = "okay";
+      intc0: interrupt-controller {
+          #interrupt-cells = <1>;
+          interrupt-controller;
+          compatible = "riscv,cpu-intc";
+      };
+    };
+
+    cpu1: cpu@1{
+      device_type = "cpu";
+      compatible = "riscv";
+      riscv,isa = "rv32imafd";
+      clock-frequency = <100000000>;
+      mmu-type = "riscv,sv32";
+      reg = <1>;
+      status = "okay";
+      intc1: interrupt-controller {
+          #interrupt-cells = <1>;
+          interrupt-controller;
+          compatible = "riscv,cpu-intc";
+      };
+    };
+  };
+
+  memory {
+    device_type = "memory";
+    reg = <0x80000000 0x10000000>;
+  };
+
+  framebuffer0: framebuffer@8f000000 {
+      compatible = "simple-framebuffer";
+      reg = <0x8F000000 (1920 * 1080 * 2)>;
+      width = <640>;
+      height = <480>;
+      stride = <(640 * 2)>;
+      format = "r5g6b5";
+  };
+
+
+  periph@10000000 {
+    compatible = "simple-bus";
+    #address-cells = <0x1>;
+    #size-cells = <0x1>;
+    ranges = <0x0 0x10000000 0x01000000>;
+
+    serial0: serial@10000 {
+      device_type = "serial";
+      compatible = "vexriscv,uart0";
+      reg = <0x10000 0x10>;
+      clock-frequency = <100000000>;
+    };
+
+    spiA: spi@20000 {
+      compatible = "vexriscv,spi";
+      #address-cells = <1>;
+      #size-cells = <0>;
+      reg = <0x20000 0x1000>;
+      cmd_fifo_depth = <256>;
+      rsp_fifo_depth = <256>;
+      num-cs = <1>;
+      clock-frequency = <100000000>;
+
+      flash: flash@0 {
+        #address-cells = <1>;
+        #size-cells = <1>;
+        compatible = "jedec,spi-nor";
+        reg = <0>;
+        spi-max-frequency = <25000000>;
+      };
+
+      mmc0: mmc@1 {
+        compatible = "mmc-spi-slot";
+        reg = <1>;
+        spi-max-frequency = <25000000>;
+      };
+    };
+
+    usb0: ohci@a0000 {
+      compatible = "generic-ohci";
+      reg = <0xa0000 0x1000>;
+    };
+  };
+};
+
+
+//sspi  0:0.0 32 9F
+//mtd read uboot-env 0x80000000
+//md.l 0x80000000 100
