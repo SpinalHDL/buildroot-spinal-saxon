@@ -1,0 +1,233 @@
+/dts-v1/;
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/input/input.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+
+#define SAXON_CPU_ISA "rv32imafd"
+
+/ {
+    #address-cells = <0x1>;
+    #size-cells = <0x1>;
+    compatible = "spinal,vexriscv";
+    model = "spinal,vexriscv_saxon";
+
+    chosen {
+        bootargs = "rootwait console=hvc0 earlycon=sbi root=/dev/mmcblk0p2 init=/sbin/init mmc_core.use_spi_crc=0 loglevel=8"; // loglevel=8
+
+        //bootargs = "rootwait console=hvc0 earlycon=sbi root=/dev/ram0 init=/boot mmc_core.use_spi_crc=0";
+        //bootargs = "rootwait console=hvc0 earlycon=sbi root=/dev/ram0 init=/sbin/init mmc_core.use_spi_crc=0";
+        //linux,initrd-start = <0x81000000>;
+        //linux,initrd-end =   <0x82400000>;
+    };
+
+    cpus {
+        #address-cells = <0x1>;
+        #size-cells = <0x0>;
+        timebase-frequency = <100000000>;
+        #include <boards/common/dts/linux_cpu.dts>
+    };
+
+    memory@80000000 {
+        device_type = "memory";
+        reg = <0x80000000 0x10000000>;
+    };
+
+
+
+    reserved-memory {
+        #address-cells = <1>;
+        #size-cells = <1>;
+        ranges;
+
+        opensbi: sbi@80F80000 {
+            reg = <0x80F80000 0x80000>;
+        };
+        framebuffer: sbi@8F000000 {
+            reg = <0x8F000000 0x1000000>;
+        };
+    };
+
+
+	periph_clock: clock@0 {
+		#clock-cells = <0>;
+		compatible = "fixed-clock";
+		clock-frequency = <100000000>;
+		//clock-output-names = "periph_clock";
+	};
+
+    
+    framebuffer0: framebuffer@8F000000 {
+        compatible = "spinal-framebuffer";
+        reg = <0x8F000000 (1920 * 1024 * 4)>,
+              <0x10090000 0x1000>;
+        clocks = <&pll2>;
+        dmas = <&dmaA 0>;
+        dma-names = "stream";
+
+        format = "r5g6b5";
+        mode = "640x480@60m";
+    };
+
+    periph@10000000 {
+        compatible = "simple-bus";
+        #address-cells = <0x1>;
+        #size-cells = <0x1>;
+        ranges = <0x0 0x10000000 0x01000000>;
+
+        pll2: clock@90000 {
+            compatible = "spinal,clk-mmcme2";
+            reg = <0x91000 0x1000>;
+            #clock-cells = <0>;
+            clocks = <&periph_clock>;
+        };
+
+
+        plic: interrupt-controller@c00000 {
+            compatible = "sifive,plic-1.0.0", "sifive,fu540-c000-plic";
+            #interrupt-cells = <1>;
+            interrupt-controller;
+            interrupts-extended = <
+                #include <boards/common/dts/linux_plic_link.dts>
+            >;
+            reg = <0x00C00000 0x400000>;
+            riscv,ndev = <32>;
+        };
+
+        gpioA: gpio@0 {
+            compatible = "spinal-lib,gpio-1.0";
+            reg = <0x000000 0x1000>;
+            ngpio = <32>;
+            interrupt-parent = <&plic>;
+            interrupts-pin = <5  6  7  8 9 18 19 20 21>;
+            interrupts     = <4  5  6  7 8 9  10 11 12>;
+            gpio-controller;
+            #gpio-cells = <2>;
+            interrupt-controller;
+            #interrupt-cells = <2>;
+        };
+
+        uartA: ttySpinal@10000 {
+                compatible = "spinal-lib,uart-1.0";
+                reg = <0x10000 0x1000>;
+                clocks = <&periph_clock>;
+        };
+
+        spiA: spi@20000 {
+            compatible = "spinal-lib,spi-1.0";
+            #address-cells = <1>;
+            #size-cells = <0>;   
+            reg = <0x020000 0x1000>;
+            cmd_fifo_depth = <256>;
+            rsp_fifo_depth = <256>;
+            clocks = <&periph_clock>;
+            cs-gpios = <0>, <0>, <&gpioA 18 0>, <&gpioA 19 0>, <&gpioA 20 0>;
+                   
+            flash: flash@0 {
+                #address-cells = <1>;
+                #size-cells = <1>;
+                compatible = "spi-nor";
+                reg = <0>;
+                spi-max-frequency = <25000000>;
+
+                partition@0 {
+                    label = "fpga_bitstream";
+                    reg = <0x000000 0xC00000>;
+                };
+                partition@1 {
+                    label = "uboot-env";
+                    reg = <0xC00000 0xA00000>;
+                };
+                partition@2 {
+                    label = "opensbi";
+                    reg = <0xD00000 0x010000>;
+                };
+                partition@3 {
+                    label = "uboot";
+                    reg = <0xD40000 0x040000>;
+                };
+                partition@4 {
+                    label = "user";
+                    reg = <0xE00000 0x1200000>;
+                };
+            };
+
+            mmc-slot@1 {
+                compatible = "mmc-spi-slot";
+                reg = <1>;
+                voltage-ranges = <3300 3300>;
+                spi-max-frequency = <25000000>;
+            };
+
+        };
+
+        dmaA: dma@80000 {
+            compatible = "spinal,lib-dmasg";
+            reg = <0x80000 0x10000>;
+            interrupt-parent = <&plic>;
+            interrupts = <14>;
+
+			#dma-cells = <1>;
+            #address-cells = <1>;
+            #size-cells = <0>;   
+            dma-channel@0 {
+	            reg = <0>;
+			    interrupt-parent = <&plic>;
+			    interrupts = <14>;
+            };
+            dma-channel@1 {
+	            reg = <1>;
+			    interrupt-parent = <&plic>;
+			    interrupts = <15>;
+            };
+        };
+
+        usb0: ohci@a0000 {
+          compatible = "generic-ohci";
+          reg = <0xa0000 0x1000>;
+          interrupt-parent = <&plic>;
+          interrupts = <16>;
+        };
+
+        audio_out0: audio_out@94000 {
+            compatible = "spinal,lib-audio-out";
+            reg = <0x94000 0x1000>;
+
+            dmas = <&dmaA 1>;
+            dma-names = "tx";
+
+            clocks = <&periph_clock>;
+        };
+    };
+
+    leds: leds {
+        compatible = "gpio-leds";
+
+        led0 {
+            label = "led4";
+            gpios = <&gpioA 0 0>;
+            linux,default-trigger = "none";
+        };
+        led1 {
+            label = "led5";
+            gpios = <&gpioA 1 0>;
+            linux,default-trigger = "none";
+        };
+        led2 {
+            label = "led6";
+            gpios = <&gpioA 2 0>;
+            linux,default-trigger = "mmc0";
+        };
+        led3 {
+            label = "led7";
+            gpios = <&gpioA 3 0>;
+            linux,default-trigger = "activity";
+        };
+        led4 {
+            label = "led7";
+            gpios = <&gpioA 4 0>;
+            linux,default-trigger = "heartbeat";
+        };
+    };
+};
+
+
